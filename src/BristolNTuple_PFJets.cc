@@ -28,8 +28,8 @@ BristolNTuple_PFJets::BristolNTuple_PFJets(const edm::ParameterSet& iConfig) :
 		isRealData(iConfig.getParameter<bool>("isRealData")),
 
 		// calib("csvv2", "BristolAnalysis/NTupleTools/data/BTagSF/CSVv2.csv"),
-		calib("csvv2", "CSVv2.csv"),
-		reader_bc(		&calib,               // calibration instance
+		calib("csvv2", iConfig.getParameter<string>("csvToUse")),
+		reader_bc(	&calib,               // calibration instance
 					BTagEntry::OP_MEDIUM,  // operating point
 					"mujets",               // measurement type
 					"central"),           // systematics type
