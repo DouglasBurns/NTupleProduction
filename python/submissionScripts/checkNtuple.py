@@ -10,7 +10,15 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-pathOfCrabWorkdirs = '/storage/db0268/TopCrossSections/NTupleProduction/CMSSW_7_6_3_patch2/src/workdirCrab/v14/2016-06-10/'
+USER = 'db0268'
+VERSION = 'v0.0.1'
+DATE = '2016-06-27'
+pathOfCrabWorkdirs = '/scratch/{USER}/NTP/NTupleProduction/workspace/crab/{VERSION}/{DATE}'
+pathOfCrabWorkdirs.format(
+	USER=USER,
+    VERSION=VERSION,
+    DATE=DATE,
+)
 
 for crabWorkdir in os.listdir(pathOfCrabWorkdirs):
 
