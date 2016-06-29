@@ -6,7 +6,7 @@ CAMPAIGN = __file__.split('/')[-2]
 config.General.requestName = NAME
 config.Data.outputDatasetTag = NAME
 config.Data.outLFNDirBase += '/' + CAMPAIGN
-config.Data.inputDataset = '/SingleElectron/Run2016B-PromptReco-v1/MINIAOD'
+config.Data.inputDataset = '/SingleMuon/Run2016B-PromptReco-v1/MINIAOD'
 config.Data.splitting = 'EventAwareLumiBased'
 config.Data.unitsPerJob = 500000
 config.JobType.pyCfgParams = ['isData=1']
