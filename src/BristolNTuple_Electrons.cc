@@ -264,9 +264,9 @@ void BristolNTuple_Electrons::produce(edm::Event& iEvent, const edm::EventSetup&
 			energy->push_back(it->energy());
 
 			// extra kinematic variables for easier debugging
-      pt_store->push_back(it->pt());
-      eta_store->push_back(it->eta());
-      phi_store->push_back(it->phi());
+		    pt_store->push_back(it->pt());
+		    eta_store->push_back(it->eta());
+		    phi_store->push_back(it->phi());
 
 			//extra properties
 			charge->push_back(it->charge());

@@ -49,6 +49,11 @@
 			"destination": "",
 			"provider": "git-cms-merge-topic"
 		},{
+			"name": "egmRegression",
+			"source": "rafaellopesdesa:Regression80XEgammaAnalysis_v2",
+			"destination": "",
+			"provider": "git-cms-merge-topic"
+		},{				
 			"name": "egmSmearer",
 			"source": "shervin86:Moriond2017_JEC_energyScales",
 			"destination": "",
