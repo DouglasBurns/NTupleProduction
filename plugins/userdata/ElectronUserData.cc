@@ -409,25 +409,6 @@ float ElectronUserData::electronSeedCorrections(const edm::Event& iEvent, const 
 	}
 	return Ecorr;
 }
-// void ElectronUserData::energyCorrections(const edm::Event& iEvent, pat::Electron& el) const {
-// 	EnergyScaleCorrection_class eScaler('EgammaAnalysis/ElectronTools/data/ScalesSmearings/Winter_2016_reReco_v1_ele');
-// 	e_energy_old = el->energy()
-// 	eScaler.doScale=true;
-// 	eScaler.doSmear=true;
-// 	if(isData){
-// 	    scale_corr=eScaler.ScaleCorrection(iEvent.id().run(), el->isEB()), el->full5x5_r9(), el->superCluster()->eta(), el->et());
-// 	    e_energy_new=e_energy_old*(scale_corr); 
-// 	}
-// 	if(isMC){
-// 	   sigma= eScaler.getSmearingSigma(iEvent.id().run(), el->isEB()), el->full5x5_r9(), el->superCluster()->eta(), el->et(), 0, 0);
-// 	   //Put the last two inputs at 0,0 for the nominal value of sigma
-// 	   //Now smear the MC energy
-// 	   rgen_ = new TRandom3(0);
-// 	   e_energy_new=e_energy_old*(rgen_->Gaus(1, sigma)) ;
-// 	}
-
-
-// }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void ElectronUserData::beginStream(edm::StreamID) {
