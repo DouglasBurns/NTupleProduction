@@ -72,7 +72,8 @@ private:
 	void fillBtagWeights(pat::Jet& jet) const;
 	void fillJEC(pat::Jet& jet, const edm::Event& iEvent, const edm::EventSetup& iSetup,
 			const JetCorrector* jetCorrector) const;
-	void fillJER(pat::Jet& jet, const edm::Event& iEvent, const edm::EventSetup& iSetup) const;
+	void fillJER(pat::Jet& jet, const edm::Event& iEvent, JME::JetResolution resolution, 
+			JME::JetResolutionScaleFactor resolution_sf) const;
 
 	// ----------member data ---------------------------
 	// inputs
@@ -177,6 +178,19 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	JetCorrectionUncertainty jecUnc(jetCorrectorParams);
 	const JetCorrector* jetCorrector(JetCorrector::getJetCorrector(jetCorrectionService_, iSetup));
 
+	JME::JetResolution resolution;
+	JME::JetResolutionScaleFactor resolution_sf;
+	if (!iEvent.isRealData()) {
+		if( jerFromFile_ == true ){
+			resolution = JME::JetResolution(resFile_);
+			resolution_sf = JME::JetResolutionScaleFactor(resFile_sf_);
+		}
+		else{
+			resolution = JME::JetResolution::get(iSetup, "AK4PFchs_pt");
+			resolution_sf = JME::JetResolutionScaleFactor::get(iSetup, "AK4PFchs");
+		}
+	}
+
 	if (jets.isValid()) {
 		std::auto_ptr < std::vector<pat::Jet> > jetCollection(new std::vector<pat::Jet>(*jets));
 		size_t nJets = jetCollection->size();
@@ -205,8 +219,7 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			// only for simulation
 			if (!iEvent.isRealData()) {
 				fillBtagWeights(jet);
-				// JER
-				fillJER(jet, iEvent, iSetup);
+				fillJER(jet, iEvent, resolution, resolution_sf);
 			}
 		}
 		iEvent.put(jetCollection);
@@ -436,26 +449,16 @@ void JetUserData::fillJEC(pat::Jet& jet, const edm::Event& iEvent, const edm::Ev
 	jet.addUserFloat("L1OffJEC", jet.correctedJet("L1FastJet").pt() / jet.correctedJet("Uncorrected").pt());
 }
 
-void JetUserData::fillJER(pat::Jet& jet, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void JetUserData::fillJER(pat::Jet& jet, const edm::Event& iEvent, 
+		JME::JetResolution resolution, JME::JetResolutionScaleFactor resolution_sf) const {
 
 	edm::Handle<double> rho;
 	iEvent.getByToken(rho_, rho);
 
-	JME::JetResolution resolution;
-	JME::JetResolutionScaleFactor resolution_sf;
-	if( jerFromFile_ == true ){
-		resolution = JME::JetResolution(resFile_);
-		resolution_sf = JME::JetResolutionScaleFactor(resFile_sf_);
-	}
-	else{
-		resolution = JME::JetResolution::get(iSetup, "AK4PFchs_pt");
-		resolution_sf = JME::JetResolutionScaleFactor::get(iSetup, "AK4PFchs");
-	}
-
 	JME::JetParameters jer_parameters;
-    jer_parameters.setJetPt(jet.pt());
-    jer_parameters.setJetEta(jet.eta());
-    jer_parameters.setRho(*rho);
+	jer_parameters.setJetPt(jet.pt());
+	jer_parameters.setJetEta(jet.eta());
+	jer_parameters.setRho(*rho);
 
 	// Retreive resolution and scale factors
 	float r = resolution.getResolution(jer_parameters);
