@@ -46,8 +46,8 @@ def setup_electrons(process, cms, options):
 	    isSynchronization = cms.bool(False),
 	    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Winter_2016_reReco_v1_ele"),
 	)
-	process.smearedElectrons = cms.Sequence( process.selectedSlimmedElectrons + process.calibratedPatElectrons)
-	# process.smearedElectrons = cms.Sequence( process.electronRegression + process.selectedSlimmedElectrons + process.calibratedPatElectrons)
+	# process.smearedElectrons = cms.Sequence( process.selectedSlimmedElectrons + process.calibratedPatElectrons)
+	process.smearedElectrons = cms.Sequence( process.electronRegression + process.selectedSlimmedElectrons + process.calibratedPatElectrons)
 
 	##########################################################
 	### Applying the ID ######################################
