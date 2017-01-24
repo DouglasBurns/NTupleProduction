@@ -14,12 +14,12 @@ def setup_electrons(process, cms, options):
 	# process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
 
 	# Apply the regression from a remote database
-	# from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
-	# process = regressionWeights(process)
-	# process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
+	from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
+	process = regressionWeights(process)
+	process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
 
 	# Apply from GT
-	process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
+	# process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
 
 	process.electronRegression = cms.Sequence(process.regressionApplication)
 
@@ -46,8 +46,8 @@ def setup_electrons(process, cms, options):
 	    isSynchronization = cms.bool(False),
 	    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Winter_2016_reReco_v1_ele"),
 	)
-	# process.smearedElectrons = cms.Sequence( process.selectedSlimmedElectrons + process.calibratedPatElectrons)
-	process.smearedElectrons = cms.Sequence( process.electronRegression + process.selectedSlimmedElectrons + process.calibratedPatElectrons)
+	process.smearedElectrons = cms.Sequence( process.selectedSlimmedElectrons + process.calibratedPatElectrons)
+	# process.smearedElectrons = cms.Sequence( process.electronRegression + process.selectedSlimmedElectrons + process.calibratedPatElectrons)
 
 	##########################################################
 	### Applying the ID ######################################
