@@ -19,6 +19,7 @@ electronUserData = cms.EDProducer(
     maxVetoElectronEta=cms.double(2.1),
     minSignalElectronPt=cms.double(34.),
     maxSignalElectronEta=cms.double(2.1),
+    ebRecHits = cms.InputTag("reducedEgamma","reducedEBRecHits"),
     #     mediumElectronIDMap_bitmap=cms.InputTag(
     #         'egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-mediumBitmap'),
 
