@@ -177,17 +177,6 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	JetCorrectionUncertainty jecUnc(jetCorrectorParams);
 	const JetCorrector* jetCorrector(JetCorrector::getJetCorrector(jetCorrectionService_, iSetup));
 
-	// // same jet collection
-	// edm::ESHandle < JetResolutionObject > jetResolutionHandle;
-	// iSetup.get<JetResolutionRcd>().get(jecUncertainty_, jetResolutionHandle); 
-
-
-
-//	bool isSimulation = !iEvent.isRealData();
-
-	// https://twiki.cern.ch/twiki/bin/view/CMS/JetEnergyScale
-	// https://twiki.cern.ch/twiki/bin/view/CMS/JECAnalysesRecommendations
-
 	if (jets.isValid()) {
 		std::auto_ptr < std::vector<pat::Jet> > jetCollection(new std::vector<pat::Jet>(*jets));
 		size_t nJets = jetCollection->size();
