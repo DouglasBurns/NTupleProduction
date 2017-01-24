@@ -73,9 +73,9 @@ private:
 	bool isGood(const edm::Ptr<pat::Electron>& electron, std::vector<reco::Vertex> primaryVertices) const;
 	bool passesImpactParameterSelection(const edm::Ptr<pat::Electron>& electron, std::vector<reco::Vertex> primaryVertices) const;
 	void fillVertexVariables(const edm::Event&, pat::Electron& el) const;
+	float electronSeedCorrections(const edm::Event&, const edm::Ptr<pat::Electron>& electron) const;
 
 	// inputs
-	edm::EDGetToken electronCaliInputTag_;
 	edm::EDGetToken electronInputTag_;
 	const edm::EDGetTokenT<std::vector<reco::Vertex> > vtxInputTag_;
 	const edm::EDGetTokenT<reco::BeamSpot> beamSpotInputTag_;
@@ -88,6 +88,7 @@ private:
 	edm::ValueMap<bool> tightElectronIDDecisions_, vetoElectronIDDecisions_;
 	edm::ValueMap<vid::CutFlowResult> tightIdCutFlowData_;
 
+	edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit>>> ebrechits_;
 	// cuts
 	double minVetoElectronPt_, maxVetoElectronEta_;
 	double minSignalElectronPt_, maxSignalElectronEta_;
@@ -127,6 +128,9 @@ ElectronUserData::ElectronUserData(const edm::ParameterSet& iConfig) :
 				eleTightIdFullInfoMapToken_(
 						consumes < edm::ValueMap<vid::CutFlowResult>
 								> (iConfig.getParameter < edm::InputTag > ("electronTightIdMap"))), //
+				ebrechits_(
+						consumes< edm::SortedCollection
+								< EcalRecHit,edm::StrictWeakOrdering<EcalRecHit >>>(iConfig.getParameter<edm::InputTag>("ebRecHits"))),
 				minVetoElectronPt_(iConfig.getParameter<double>("minVetoElectronPt")), //
 				maxVetoElectronEta_(iConfig.getParameter<double>("maxVetoElectronEta")), //
 				minSignalElectronPt_(iConfig.getParameter<double>("minSignalElectronPt")), //
@@ -183,6 +187,9 @@ void ElectronUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 			const edm::Ptr<pat::Electron> elPtr(electrons, index);
 			std::vector < uint > idCutsToInvert { 99 };
 
+			// std::cout << "Energy Correction for electron : " << index << " is: " << electronSeedCorrections(iEvent, elPtr) << std::endl;
+			el.addUserFloat("energyCorrection", electronSeedCorrections(iEvent, elPtr));
+
 			vid::CutFlowResult fullCutFlowDataTight = tightIdCutFlowData_[elPtr];
 			el.addUserInt("passesVetoId", vetoElectronIDDecisions_[elPtr]);
 			el.addUserInt("passesTightId", tightElectronIDDecisions_[elPtr]);
@@ -234,6 +241,7 @@ void ElectronUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 iSetup.get<SetupRecord>().get(pSetup);
 	 */
 }
+
 
 /**
  *
@@ -370,6 +378,37 @@ void ElectronUserData::fillVertexVariables(const edm::Event& iEvent, pat::Electr
 	el.addUserFloat("beamSpotDXYError", el.edB(pat::Electron::BS2D));
 }
 
+float ElectronUserData::electronSeedCorrections(const edm::Event& iEvent, const edm::Ptr<pat::Electron>& electron) const {
+	/*
+	Return the scale factor for the electron seed energy corrections, Undoes the slew effect. 
+	Will be incorporated into the EGMSMearer and so can be removed in the nearish future
+	*/
+
+	double Ecorr=1;
+	
+	if (iEvent.isRealData()) {
+		edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit>>> ebrechits;
+		iEvent.getByToken(ebrechits_, ebrechits);
+
+		DetId detid = electron->superCluster()->seed()->seed();
+		const EcalRecHit * rh = NULL;
+
+		if (detid.subdetId() == EcalBarrel) {
+		    auto rh_i =  ebrechits->find(detid);
+		    if( rh_i != ebrechits->end()){
+		    	rh =  &(*rh_i);
+		    } 
+		    else rh = NULL;
+		} 
+		if(rh==NULL) Ecorr=1;
+		else{
+		  	if(rh->energy() > 200 && rh->energy()<300)  Ecorr=1.0199;
+		  	else if(rh->energy()>300 && rh->energy()<400) Ecorr=  1.052;
+		  	else if(rh->energy()>400 && rh->energy()<500) Ecorr = 1.015;
+		}
+	}
+	return Ecorr;
+}
 // void ElectronUserData::energyCorrections(const edm::Event& iEvent, pat::Electron& el) const {
 // 	EnergyScaleCorrection_class eScaler('EgammaAnalysis/ElectronTools/data/ScalesSmearings/Winter_2016_reReco_v1_ele');
 // 	e_energy_old = el->energy()
