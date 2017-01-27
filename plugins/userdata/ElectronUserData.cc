@@ -194,7 +194,6 @@ void ElectronUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 			el.addUserInt("passesVetoId", vetoElectronIDDecisions_[elPtr]);
 			el.addUserInt("passesTightId", tightElectronIDDecisions_[elPtr]);
 			idCutsToInvert = {7};
-			// (*HEEP_id_cutflow_data)[ elPtr ].getCutFlowResultMasking(maskCuts).cutFlowPassed();
 			el.addUserInt("passesTightNonIsoId", passesInvertedIDCuts(fullCutFlowDataTight, idCutsToInvert));
 			idCutsToInvert = {8, 9};
 			el.addUserInt("passesTightConversionId", passesInvertedIDCuts(fullCutFlowDataTight, idCutsToInvert));
