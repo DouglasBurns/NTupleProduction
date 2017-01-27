@@ -301,9 +301,13 @@ bool TopPairMuonPlusJetsSelectionFilter::passesLooseMuonVeto() const {
 			}
 		}
 		return isZEvent == true;
-	} else
-		// Require only one loose muon, which is the signal muons
-		return vetoMuons_.size() < 2;
+	} 	
+	else {
+		if (nonIsolatedMuonSelection1_ || nonIsolatedMuonSelection2_){
+			return vetoElectrons_.size() < 1;
+		}
+		return vetoElectrons_.size() < 2;
+	}
 }
 
 bool TopPairMuonPlusJetsSelectionFilter::hasAtLeastOneGoodJet() const {
