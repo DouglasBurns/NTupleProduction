@@ -65,7 +65,7 @@ private:
 	virtual void produce(edm::Event&, const edm::EventSetup&) override;
 	virtual void endStream() override;
 
-	void fillVertexVariables(const edm::Event&, pat::Jet& jet) const;
+	void fillVertexVariables(const edm::Handle < std::vector<reco::Vertex> > primaryVertices, pat::Jet& jet) const;
 	void fillUncertainties(pat::Jet& jet, JetCorrectionUncertainty& jecUnc) const;
 	void fillJetIds(pat::Jet& jet) const;
 	void fillBtagging(pat::Jet& jet) const;
@@ -195,7 +195,7 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			// probably just adding a scale factor would be good
 
 			// vertex association
-			fillVertexVariables(iEvent, jet);
+			fillVertexVariables(primaryVertices, jet);
 
 			//IDs
 			fillJetIds(jet);
@@ -242,9 +242,7 @@ void JetUserData::fillUncertainties(pat::Jet& jet, JetCorrectionUncertainty& jec
 	 reco::Candidate::LorentzVector scaledJetP4 = uncorrJet * corr; */
 }
 
-void JetUserData::fillVertexVariables(const edm::Event& iEvent, pat::Jet& jet) const {
-	edm::Handle < std::vector<reco::Vertex> > primaryVertices;
-	iEvent.getByToken(vtxInputTag_, primaryVertices);
+void JetUserData::fillVertexVariables(const edm::Handle < std::vector<reco::Vertex> > primaryVertices, pat::Jet& jet) const {
 	if (primaryVertices.isValid()) {
 		LogDebug("JetUserData") << "Total # Primary Vertices: " << primaryVertices->size();
 		// this is only for the primary vertex
@@ -458,7 +456,6 @@ void JetUserData::fillJER(pat::Jet& jet, edm::Handle<double> rho) const {
 	jet.addUserFloat("JER_SF", sf);
 	jet.addUserFloat("JER_SFUp", sf_up);
 	jet.addUserFloat("JER_SFDown", sf_down);
-	// Store here. Could move JER implementation here too
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
