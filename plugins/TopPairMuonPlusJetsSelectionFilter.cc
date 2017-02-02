@@ -37,6 +37,8 @@ TopPairMuonPlusJetsSelectionFilter::TopPairMuonPlusJetsSelectionFilter(const edm
 
 				nonIsolatedMuonSelection1_(iConfig.getParameter<bool>("nonIsolatedMuonSelection1")), //
 				nonIsolatedMuonSelection2_(iConfig.getParameter<bool>("nonIsolatedMuonSelection2")), //
+				looseMuonIso_(iConfig.getParameter<double>("looseMuonIsolation")), //
+				tightMuonIso_(iConfig.getParameter<double>("tightMuonIsolation")), //
 				passes_(), //
 				runNumber_(0), //
 				signalMuonIndex_(999), //
@@ -178,6 +180,7 @@ void TopPairMuonPlusJetsSelectionFilter::setupEventContent(edm::Event& iEvent, c
 	iEvent.getByToken(vetoMuonsToken_, vetoMuons);
 	vetoMuons_ = *vetoMuons;
 	// Muons
+	// all signal muons (inc non iso for CR)
 	LogDebug("NTP_MuPlusJets") << "Getting isolated muons";
 	edm::Handle < pat::MuonCollection > goodMuons;
 	iEvent.getByToken(goodMuonsToken_, goodMuons);
@@ -303,8 +306,23 @@ bool TopPairMuonPlusJetsSelectionFilter::passesLooseMuonVeto() const {
 		return isZEvent == true;
 	} 	
 	else {
+		// Here CR muon has iso > 0.15. With the loose veto > 0.25 this can lead to 
+		// it being also a veto muon or not a veto muon. This changes the number of 
+		// vetoes required depending on signal control region muon.
 		if (nonIsolatedMuonSelection1_ || nonIsolatedMuonSelection2_){
-			return vetoMuons_.size() < 1;
+			float iso = 0;
+			// should only be 1 good isolated muon at this stage
+			for (unsigned int index = 0; index < goodIsolatedMuons_.size(); ++index) {
+				const pat::Muon signalMuon = goodIsolatedMuons_.at(index);
+				iso = signalMuon.userFloat("PFRelIso04DeltaBeta");
+				std::cout << iso << std::endl;
+				if (iso > looseMuonIso_){
+					return vetoMuons_.size() < 1;
+				}
+				else if(iso > tightMuonIso_ && iso < looseMuonIso_){
+					return vetoMuons_.size() < 2;
+				}
+			}
 		}
 		return vetoMuons_.size() < 2;
 	}
