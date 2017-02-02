@@ -65,14 +65,14 @@ private:
 	virtual void produce(edm::Event&, const edm::EventSetup&) override;
 	virtual void endStream() override;
 
-	void fillVertexVariables(const edm::Handle < std::vector<reco::Vertex> > primaryVertices, pat::Jet& jet) const;
+	void fillVertexVariables(const std::vector<reco::Vertex> primaryVertices, pat::Jet& jet) const;
 	void fillUncertainties(pat::Jet& jet, JetCorrectionUncertainty& jecUnc) const;
 	void fillJetIds(pat::Jet& jet) const;
 	void fillBtagging(pat::Jet& jet) const;
 	void fillBtagWeights(pat::Jet& jet) const;
 	void fillJEC(pat::Jet& jet, const edm::Event& iEvent, const edm::EventSetup& iSetup,
 			const JetCorrector* jetCorrector) const;
-	void fillJER(pat::Jet& jet, edm::Handle<double> rho) const;
+	void fillJER(pat::Jet& jet, double rho) const;
 
 	// ----------member data ---------------------------
 	// inputs
@@ -166,9 +166,11 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 	edm::Handle < std::vector<reco::Vertex> > primaryVertices;
 	iEvent.getByToken(vtxInputTag_, primaryVertices);
+	const std::vector<reco::Vertex>& vertices = *primaryVertices.product();
 
-	edm::Handle<double> rho;
-	iEvent.getByToken(rho_, rho);
+	edm::Handle<double> rho_handle;
+	iEvent.getByToken(rho_, rho_handle);
+	const double rho = *rho_handle.product();
 
 	edm::ESHandle < JetCorrectorParametersCollection > jetCorrectorCollection;
 	iSetup.get<JetCorrectionsRecord>().get(jecUncertainty_, jetCorrectorCollection);
@@ -195,7 +197,7 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			// probably just adding a scale factor would be good
 
 			// vertex association
-			fillVertexVariables(primaryVertices, jet);
+			fillVertexVariables(vertices, jet);
 
 			//IDs
 			fillJetIds(jet);
@@ -242,11 +244,11 @@ void JetUserData::fillUncertainties(pat::Jet& jet, JetCorrectionUncertainty& jec
 	 reco::Candidate::LorentzVector scaledJetP4 = uncorrJet * corr; */
 }
 
-void JetUserData::fillVertexVariables(const edm::Handle < std::vector<reco::Vertex> > primaryVertices, pat::Jet& jet) const {
-	if (primaryVertices.isValid()) {
-		LogDebug("JetUserData") << "Total # Primary Vertices: " << primaryVertices->size();
+void JetUserData::fillVertexVariables(const std::vector<reco::Vertex> primaryVertices, pat::Jet& jet) const {
+	if (!primaryVertices.empty()) {
+		LogDebug("JetUserData") << "Total # Primary Vertices: " << primaryVertices.size();
 		// this is only for the primary vertex
-		reco::Vertex pv = primaryVertices->front();
+		reco::Vertex pv = primaryVertices.front();
 		int bestVtxIndex3Ddist = -1;
 		int bestVtxIndexXYdist = -1;
 		int bestVtxIndexZdist = -1;
@@ -258,7 +260,7 @@ void JetUserData::fillVertexVariables(const edm::Handle < std::vector<reco::Vert
 		double minVtxDistZ = -99999.;
 		double maxTrackAssocRatio = -9999.;
 
-		for (reco::VertexCollection::const_iterator v_it = primaryVertices->begin(); v_it != primaryVertices->end();
+		for (reco::VertexCollection::const_iterator v_it = primaryVertices.begin(); v_it != primaryVertices.end();
 				++v_it) {
 
 			double sumweights = 0.0;
@@ -307,24 +309,24 @@ void JetUserData::fillVertexVariables(const edm::Handle < std::vector<reco::Vert
 			// Find vertex with minimum weighted distance.
 			if (dist3Dweighted < minVtxDist3D) {
 				minVtxDist3D = dist3Dweighted;
-				bestVtxIndex3Ddist = int(std::distance(primaryVertices->begin(), v_it));
+				bestVtxIndex3Ddist = int(std::distance(primaryVertices.begin(), v_it));
 
 			}
 
 			if (distXYweighted < minVtxDistXY) {
 				minVtxDistXY = distXYweighted;
-				bestVtxIndexXYdist = int(std::distance(primaryVertices->begin(), v_it));
+				bestVtxIndexXYdist = int(std::distance(primaryVertices.begin(), v_it));
 			}
 
 			if (distZweighted < minVtxDistZ) {
 				minVtxDistZ = distZweighted;
-				bestVtxIndexZdist = int(std::distance(primaryVertices->begin(), v_it));
+				bestVtxIndexZdist = int(std::distance(primaryVertices.begin(), v_it));
 			}
 
 			// Find vertex with minimum weighted distance.
 			if (trackassociationratio > maxTrackAssocRatio) {
 				maxTrackAssocRatio = trackassociationratio;
-				bestVtxIndexSharedTracks = int(std::distance(primaryVertices->begin(), v_it));
+				bestVtxIndexSharedTracks = int(std::distance(primaryVertices.begin(), v_it));
 			}
 
 		}
@@ -437,12 +439,12 @@ void JetUserData::fillJEC(pat::Jet& jet, const edm::Event& iEvent, const edm::Ev
 	jet.addUserFloat("L1OffJEC", jet.correctedJet("L1FastJet").pt() / jet.correctedJet("Uncorrected").pt());
 }
 
-void JetUserData::fillJER(pat::Jet& jet, edm::Handle<double> rho) const {
+void JetUserData::fillJER(pat::Jet& jet, double rho) const {
 
 	JME::JetParameters jer_parameters;
 	jer_parameters.setJetPt(jet.pt());
 	jer_parameters.setJetEta(jet.eta());
-	jer_parameters.setRho(*rho);
+	jer_parameters.setRho(rho);
 
 	// Retreive resolution and scale factors
 	float r = resolution.getResolution(jer_parameters);
