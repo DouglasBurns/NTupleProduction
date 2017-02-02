@@ -72,8 +72,7 @@ private:
 	void fillBtagWeights(pat::Jet& jet) const;
 	void fillJEC(pat::Jet& jet, const edm::Event& iEvent, const edm::EventSetup& iSetup,
 			const JetCorrector* jetCorrector) const;
-	void fillJER(pat::Jet& jet, const edm::Event& iEvent, JME::JetResolution resolution, 
-			JME::JetResolutionScaleFactor resolution_sf) const;
+	void fillJER(pat::Jet& jet, edm::Handle<double> rho) const;
 
 	// ----------member data ---------------------------
 	// inputs
@@ -82,8 +81,6 @@ private:
 	const edm::EDGetTokenT<reco::BeamSpot> beamSpotInputTag_;
 	std::string jecUncertainty_;
 	const std::string jetCorrectionService_;
-	bool jerFromFile_;
-	std::string resFile_, resFile_sf_;
 	std::string bJetDiscriminator_, btagCalibrationFile_;
 	BTagCalibration btagCalibration_;
 	std::vector<BTagCalibrationReader> btagReaders_;
@@ -93,8 +90,10 @@ private:
 	double minSignalJetPt_, maxSignalJetEta_;
 
 	double minBtagDiscLooseWP_, minBtagDiscMediumWP_, minBtagDiscTightWP_;
-	edm::EDGetTokenT<double> rho_;
 
+	edm::EDGetTokenT<double> rho_;
+	JME::JetResolution resolution;
+	JME::JetResolutionScaleFactor resolution_sf;
 };
 
 //
@@ -119,9 +118,6 @@ JetUserData::JetUserData(const edm::ParameterSet& iConfig) :
 						consumes < reco::BeamSpot > (iConfig.getParameter < edm::InputTag > ("beamSpotCollection"))), //
 				jecUncertainty_(iConfig.getParameter < std::string > ("jecUncertainty")), //
 				jetCorrectionService_(iConfig.getParameter < std::string > ("jetCorrectionService")), //
-				jerFromFile_(iConfig.getParameter < bool > ("jerFromFile")), //
-				resFile_(iConfig.getParameter < std::string > ("resolutionFile")), //
-				resFile_sf_(iConfig.getParameter < std::string > ("resolutionSFFile")), //
 				bJetDiscriminator_(iConfig.getParameter < std::string > ("bJetDiscriminator")), //
 				btagCalibrationFile_(iConfig.getParameter < std::string > ("btagCalibrationFile")), //
 				btagCalibration_("csvv2", btagCalibrationFile_.c_str()), //
@@ -171,6 +167,9 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	edm::Handle < std::vector<reco::Vertex> > primaryVertices;
 	iEvent.getByToken(vtxInputTag_, primaryVertices);
 
+	edm::Handle<double> rho;
+	iEvent.getByToken(rho_, rho);
+
 	edm::ESHandle < JetCorrectorParametersCollection > jetCorrectorCollection;
 	iSetup.get<JetCorrectionsRecord>().get(jecUncertainty_, jetCorrectorCollection);
 
@@ -178,18 +177,9 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	JetCorrectionUncertainty jecUnc(jetCorrectorParams);
 	const JetCorrector* jetCorrector(JetCorrector::getJetCorrector(jetCorrectionService_, iSetup));
 
-	JME::JetResolution resolution;
-	JME::JetResolutionScaleFactor resolution_sf;
-	if (!iEvent.isRealData()) {
-		if( jerFromFile_ == true ){
-			resolution = JME::JetResolution(resFile_);
-			resolution_sf = JME::JetResolutionScaleFactor(resFile_sf_);
-		}
-		else{
-			resolution = JME::JetResolution::get(iSetup, "AK4PFchs_pt");
-			resolution_sf = JME::JetResolutionScaleFactor::get(iSetup, "AK4PFchs");
-		}
-	}
+	// Available in Data GT so no need to specify is not data. only applied to MC.
+	resolution = JME::JetResolution::get(iSetup, "AK4PFchs_pt");
+	resolution_sf = JME::JetResolutionScaleFactor::get(iSetup, "AK4PFchs");
 
 	if (jets.isValid()) {
 		std::auto_ptr < std::vector<pat::Jet> > jetCollection(new std::vector<pat::Jet>(*jets));
@@ -219,7 +209,7 @@ void JetUserData::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			// only for simulation
 			if (!iEvent.isRealData()) {
 				fillBtagWeights(jet);
-				fillJER(jet, iEvent, resolution, resolution_sf);
+				fillJER(jet, rho);
 			}
 		}
 		iEvent.put(jetCollection);
@@ -449,11 +439,7 @@ void JetUserData::fillJEC(pat::Jet& jet, const edm::Event& iEvent, const edm::Ev
 	jet.addUserFloat("L1OffJEC", jet.correctedJet("L1FastJet").pt() / jet.correctedJet("Uncorrected").pt());
 }
 
-void JetUserData::fillJER(pat::Jet& jet, const edm::Event& iEvent, 
-		JME::JetResolution resolution, JME::JetResolutionScaleFactor resolution_sf) const {
-
-	edm::Handle<double> rho;
-	iEvent.getByToken(rho_, rho);
+void JetUserData::fillJER(pat::Jet& jet, edm::Handle<double> rho) const {
 
 	JME::JetParameters jer_parameters;
 	jer_parameters.setJetPt(jet.pt());
