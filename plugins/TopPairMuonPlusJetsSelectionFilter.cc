@@ -304,9 +304,9 @@ bool TopPairMuonPlusJetsSelectionFilter::passesLooseMuonVeto() const {
 	} 	
 	else {
 		if (nonIsolatedMuonSelection1_ || nonIsolatedMuonSelection2_){
-			return vetoElectrons_.size() < 1;
+			return vetoMuons_.size() < 1;
 		}
-		return vetoElectrons_.size() < 2;
+		return vetoMuons_.size() < 2;
 	}
 }
 
