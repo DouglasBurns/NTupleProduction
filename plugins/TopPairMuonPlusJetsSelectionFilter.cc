@@ -83,6 +83,8 @@ void TopPairMuonPlusJetsSelectionFilter::fillDescriptions(edm::ConfigurationDesc
 	desc.add<bool>("bSelectionInTaggingMode", false);
 	desc.add<bool>("nonIsolatedMuonSelection1", false);
 	desc.add<bool>("nonIsolatedMuonSelection2", false);
+	desc.add<double>("looseMuonIsolation",0.25);
+	desc.add<double>("tightMuonIsolation",0.15);
 	descriptions.add("applyTopPairMuonPlusJetsSelection", desc);
 }
 
@@ -315,7 +317,6 @@ bool TopPairMuonPlusJetsSelectionFilter::passesLooseMuonVeto() const {
 			for (unsigned int index = 0; index < goodIsolatedMuons_.size(); ++index) {
 				const pat::Muon signalMuon = goodIsolatedMuons_.at(index);
 				iso = signalMuon.userFloat("PFRelIso04DeltaBeta");
-				std::cout << iso << std::endl;
 				if (iso > looseMuonIso_){
 					return vetoMuons_.size() < 1;
 				}
