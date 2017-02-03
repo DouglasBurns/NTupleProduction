@@ -52,11 +52,11 @@ process.source = cms.Source("PoolSource",
 globalTags = {
     'data': {
         7: '76X_dataRun2_16Dec2015_v0',  # ReReco+Prompt JECv6
-        8: '80X_dataRun2_2016SeptRepro_v5',
+        8: '80X_dataRun2_2016SeptRepro_v7',
     },
     'MC': {
         7: '76X_mcRun2_asymptotic_RunIIFall15DR76_v1',  # 25ns MC
-        8: '80X_mcRun2_asymptotic_2016_TrancheIV_v7',
+        8: '80X_mcRun2_asymptotic_2016_TrancheIV_v8',
     }
 }
 
@@ -96,9 +96,9 @@ setupPseudoTop(process, cms)
 from BristolAnalysis.NTupleTools.MET_Setup_cff import setup_MET
 setup_MET(process, cms, options)
 
-# Custom JEC if useJECFromFile is true
-from BristolAnalysis.NTupleTools.Jets_Setup_cff import setup_jets
-setup_jets(process, cms, options)
+# # Custom JEC if useJECFromFile is true
+# from BristolAnalysis.NTupleTools.Jets_Setup_cff import setup_jets
+# setup_jets(process, cms, options)
 
 # Electron Regression, Smearing and VID
 from BristolAnalysis.NTupleTools.Electron_Setup_cff import setup_electrons
@@ -143,7 +143,7 @@ if isTTbarMC:
         process.badMuonTagger *
         process.smearedElectrons *
         process.egmGsfElectronIDSequence *
-        process.reapplyJEC *
+        # process.reapplyJEC *
         process.electronSelectionAnalyzerSequence *
         process.muonSelectionAnalyzerSequence *
         process.qcdMuonSelectionAnalyzerSequence *
@@ -163,7 +163,7 @@ else:
         process.badMuonTagger *
         process.smearedElectrons *
         process.egmGsfElectronIDSequence *
-        process.reapplyJEC *
+        # process.reapplyJEC *
         process.electronSelectionAnalyzerSequence *
         process.muonSelectionAnalyzerSequence *
         process.qcdMuonSelectionAnalyzerSequence *
