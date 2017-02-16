@@ -6,85 +6,68 @@
         check regime
         
     Parameters:
-        regime: NTP or BAT [DEFAULT: Moriond17] found in workspace/condor/{}
+        regime: NTP or BAT? [DEFAULT: Moriond17] found in workspace/condor/{}
 """
 
 import glob
 import shutil
 import os
 import subprocess
+
+from ntp.commands.setup import WORKSPACE
+from ntp.utils import find_latest_iteration
+from crab.datasets import DATASETS
+
 from .. import Command as C
 
 class Command(C):
     DEFAULTS = {
-        'folder': 'workspace/condor/{regime}/',
         'regime': 'Moriond17',
     }
 
     def __init__(self, path=__file__, doc=__doc__):
         super(Command, self).__init__(path, doc)
 
-
     def get_folder(self):
         '''
         Returns a list of all folders within 'workspace/condor/{regime}/'
         '''
-        d = self.__variables['folder'].format(
-            regime=self.__variables['regime']
+        r = self.__variables['regime']
+        p = WORKSPACE+'/condor/{regime}/'.format(
+            regime=r
         ) + '*/'
 
-        check_files = glob.glob(d)
-        return check_files
+        d = DATASETS[r].keys()
+        print d
 
-    def remove_old(self, list_of_all_files):
+        check_files = glob.glob(p)
+        check_files.sort()
+        return check_files, d
+
+    def return_datasets_to_check(self):
         '''
-        Removes any previous iterations. i.e. _2 supercedes _1.
-        This is a very shoddy way of doing it - there must be some more elegent way?
+        Returns the newest version of datasets to check.
         '''
-        regime = self.__variables['regime']
+        list_of_all_files, datasets = self.get_folder()
 
-        list_of_runs = []
-        f_names = [f.split('/')[-2:-1][0] for f in list_of_all_files ]
+        list_of_datasets = []
+        for dataset in datasets:
+            list_of_files = []
+            for l in list_of_all_files:
+                if dataset in l:
+                    list_of_files.append(l)
 
-        # Sort into alphabetical order
-        f_names.sort()
+            i = find_latest_iteration(list_of_files)
+            f_to_use = list_of_files[0].replace('_1', '_'+str(i))+'*.status'
+            list_of_datasets.append(f_to_use)
 
-        # Remove any older runs i.e. keep _3 over _2
-        # Deal with ordering issue _1 _10 _2...
-        f_old=-1
-        prev_run = ''
-        skip_to_1 = False
-        for run in f_names:
-            f_new = int(run.split('_')[-1:][0])
-            if skip_to_1:
-                if f_new > 1 : continue
-                else: skip_to_1=False
-
-            # End condition to always include last file.
-            if run == f_names[-1]: 
-                if f_new <= f_old: 
-                    list_of_runs.append(prev_run)
-                list_of_runs.append(run)
-                break
-
-            if f_new <= f_old: 
-                if f_new > 1 : 
-                    skip_to_1 = True
-                    continue
-                list_of_runs.append(prev_run)
-
-            f_old = f_new 
-            prev_run = run
-
-        list_of_files = ['workspace/condor/'+regime+'/'+f+'/*.status' for f in list_of_runs]
-        return list_of_files
+        return list_of_datasets
 
     def run(self, args, variables):
         print "Good Morning/Afternoon/Evening"
         self.__prepare(args, variables)
 
-        folders_in_path = self.get_folder()
-        files_to_check = self.remove_old(folders_in_path)
+        files_to_check = self.return_datasets_to_check()
 
         for f in files_to_check:
             command = ' '.join([
