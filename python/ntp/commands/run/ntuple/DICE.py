@@ -225,7 +225,7 @@ class Command(ParentCommand):
             certificate=self.REQUIRE_GRID_CERT,
             cpus=1,
             memory='1500MB',
-            other_args={'Requirements':( !stringListMember(substr(Target.Machine,0,2),"sm,bs") )},
+            other_args={'Requirements':( '!stringListMember(substr(Target.Machine,0,2),"sm,bs") )'},
         )
         parameters = 'files={files} output_file={output_file} {params}'
         if run_config['lumiMask']:
