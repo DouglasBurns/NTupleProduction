@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 electronUserData = cms.EDProducer(
     'ElectronUserData',
     vertexCollection=cms.InputTag('offlineSlimmedPrimaryVertices'),
-    electronCollection=cms.InputTag('calibratedPatElectrons'),
+    electronCollection=cms.InputTag('selectedElectrons'),
     beamSpotCollection=cms.InputTag('offlineBeamSpot'),
     conversionInput=cms.InputTag('reducedEgamma', 'reducedConversions'),
     electronVetoIdMap=cms.InputTag(

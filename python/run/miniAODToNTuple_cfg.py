@@ -141,8 +141,7 @@ if isTTbarMC:
     process.makingNTuples = cms.Path(
         # process.metFilters *
         process.badMuonTagger *
-        process.smearedElectrons *
-        process.egmGsfElectronIDSequence *
+        process.processedElectrons *
         # process.reapplyJEC *
         process.electronSelectionAnalyzerSequence *
         process.muonSelectionAnalyzerSequence *
@@ -161,8 +160,7 @@ else:
     process.makingNTuples = cms.Path(
         # process.metFilters *
         process.badMuonTagger *
-        process.smearedElectrons *
-        process.egmGsfElectronIDSequence *
+        process.processedElectrons *
         # process.reapplyJEC *
         process.electronSelectionAnalyzerSequence *
         process.muonSelectionAnalyzerSequence *
