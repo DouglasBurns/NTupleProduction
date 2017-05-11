@@ -42,7 +42,7 @@ default_settings = {{
     'MuonIsoScaleFactorsFile': 'EfficienciesAndSF_Isolation_COMBINED.root',
     'MuonTriggerScaleFactorsFile': 'EfficienciesAndSF_Trigger_COMBINED.root',
     'MuonTrackingScaleFactorsFile': 'Tracking_EfficienciesAndSF_BCDEFGH.root',
-    'ElectronTriggerScaleFactorsFile': 'EfficienciesAndSF_ElectronTrigger_COMBINED.root',
+    'ElectronTriggerScaleFactorsFile': 'SF_HLT_Ele32_eta2p1.root',
     'ElectronIdScaleFactorsFile' : 'egammaEffi.txt_EGM2D_id.root',
     'ElectronRecoScaleFactorsFile' : 'egammaEffi.txt_EGM2D_reco.root',
     'TTbarLikelihoodFile': 'LikelihoodInputAnalyserOutput.root',
