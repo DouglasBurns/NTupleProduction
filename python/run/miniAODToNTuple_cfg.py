@@ -289,9 +289,11 @@ if not isTTbarMC:
     print('Not a ttbar MC - removing TTbar specific modules')
     process.selectionCriteriaAnalyzer.genSelectionCriteriaInput = cms.VInputTag()
 
+if isData:
+    process.nTupleMET.InputTag = cms.InputTag('slimmedMETsMuEGClean')
+
 # 76X datasets are all ReReco so far
-process.nTupleEvent.metFiltersInputTag = cms.InputTag(
-    'TriggerResults', '', 'PAT')
+process.nTupleEvent.metFiltersInputTag = cms.InputTag('TriggerResults', '', 'PAT')
 
 if not options.printEventContent:
     process.makingNTuples.remove(process.printEventContent)
