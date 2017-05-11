@@ -92,13 +92,14 @@ setupPseudoTop(process, cms)
 # from BristolAnalysis.NTupleTools.metFilters_cfi import setupMETFilters
 # setupMETFilters(process, cms)
 
+# Overwrite JEC/JER if useJECFromFile is true
+if options.useJECFromFile:
+    from BristolAnalysis.NTupleTools.Jets_Setup_cff import setup_jets
+    setup_jets(process, cms, options)
+
 # Rerun MET
 from BristolAnalysis.NTupleTools.MET_Setup_cff import setup_MET
 setup_MET(process, cms, options)
-
-# # Custom JEC if useJECFromFile is true
-# from BristolAnalysis.NTupleTools.Jets_Setup_cff import setup_jets
-# setup_jets(process, cms, options)
 
 # Electron Regression, Smearing and VID
 from BristolAnalysis.NTupleTools.Electron_Setup_cff import setup_electrons
