@@ -18,7 +18,7 @@ electronUserData = cms.EDProducer(
         "egmGsfElectronIDs:cutBasedElectronHLTPreselection-Summer16-V1"),
     # Top Object Definitions
     minVetoElectronPt=cms.double(15.),
-    maxVetoElectronEta=cms.double(2.1),
+    maxVetoElectronEta=cms.double(2.4),
     minSignalElectronPt=cms.double(34.),
     maxSignalElectronEta=cms.double(2.1),
     ebRecHits = cms.InputTag("reducedEgamma","reducedEBRecHits"),
