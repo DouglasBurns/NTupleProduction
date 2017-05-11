@@ -31,7 +31,7 @@ def setup_jets(process, cms, options, postfix="PFlow"):
     dBFile = os.path.expandvars("$CMSSW_BASE/src/BristolAnalysis/NTupleTools/data/JEC/" + era + ".db")
     print 'Using JEC from DB: {0}'.format(dBFile)
 
-    if not runOnData and :
+    if not runOnData:
         # JER
         process.load('Configuration.StandardSequences.Services_cff')
         process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
