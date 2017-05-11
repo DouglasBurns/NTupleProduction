@@ -93,9 +93,9 @@ setupPseudoTop(process, cms)
 # setupMETFilters(process, cms)
 
 # Overwrite JEC/JER if useJECFromFile is true
-if options.useJECFromFile:
-    from BristolAnalysis.NTupleTools.Jets_Setup_cff import setup_jets
-    setup_jets(process, cms, options)
+# if options.useJECFromFile:
+from BristolAnalysis.NTupleTools.Jets_Setup_cff import setup_jets
+setup_jets(process, cms, options)
 
 # Rerun MET
 from BristolAnalysis.NTupleTools.MET_Setup_cff import setup_MET
@@ -136,7 +136,13 @@ process.load('BristolAnalysis.NTupleTools.indices_cff')
 
 # adds process.eventUserDataSequence
 process.load('BristolAnalysis.NTupleTools.userdata.EventUserData_cff')
-
+if isData:
+    process.eventUserDataTopPairElectronPlusJetsSelection.metInputTag = cms.InputTag('slimmedMETsMuEGClean')
+    process.eventUserDataTopPairElectronPlusJetsConversionSelection.metInputTag = cms.InputTag('slimmedMETsMuEGClean')
+    process.eventUserDataTopPairElectronPlusJetsNonIsoSelection.metInputTag = cms.InputTag('slimmedMETsMuEGClean')
+    process.eventUserDataTopPairMuonPlusJetsSelection.metInputTag = cms.InputTag('slimmedMETsMuEGClean')
+    process.eventUserDataTopPairMuonPlusJetsQCD1Selection.metInputTag = cms.InputTag('slimmedMETsMuEGClean')
+    process.eventUserDataTopPairMuonPlusJetsQCD2Selection.metInputTag = cms.InputTag('slimmedMETsMuEGClean')
 
 if isTTbarMC:
     process.makingNTuples = cms.Path(
