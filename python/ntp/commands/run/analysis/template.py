@@ -111,8 +111,7 @@ getMuonScaleFactorsFromFile = True
 getElectronScaleFactorsFromFile = True
 ElectronIdScaleFactorsFile = opj(BAT_DATA, 'egammaEffi.txt_EGM2D_id.root')
 ElectronRecoScaleFactorsFile = opj(BAT_DATA, 'egammaEffi.txt_EGM2D_reco.root')
-ElectronTriggerScaleFactorsFile = opj(
-    BAT_DATA, 'EfficienciesAndSF_ElectronTrigger_COMBINED.root')
+ElectronTriggerScaleFactorsFile = opj(BAT_DATA, 'SF_HLT_Ele32_eta2p1.root')
 MuonIdScaleFactorsFile = opj(BAT_DATA, 'EfficienciesAndSF_COMBINED.root')
 MuonIsoScaleFactorsFile = opj(BAT_DATA, 'EfficienciesAndSF_Isolation_COMBINED.root')
 MuonTriggerScaleFactorsFile = opj(BAT_DATA,'EfficienciesAndSF_Trigger_COMBINED.root')
