@@ -25,7 +25,7 @@ private:
 	//config
 	std::vector<edm::EDGetTokenT<bool> > offlineSelectionCriteriaInput_;
 	std::vector<edm::EDGetTokenT<bool> > genSelectionCriteriaInput_;
-	std::vector<edm::EDGetTokenT<bool> > particleLevelLeptonSelectionInput_;
+	edm::EDGetTokenT< bool > particleLevelLeptonSelectionInput_;
 };
 
 #endif

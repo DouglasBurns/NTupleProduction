@@ -126,6 +126,7 @@ process.load('BristolAnalysis.NTupleTools.indices_cff')
 # adds process.eventUserDataSequence
 process.load('BristolAnalysis.NTupleTools.userdata.EventUserData_cff')
 process.load('BristolAnalysis.NTupleTools.nJettiness_cff')
+process.load('BristolAnalysis.NTupleTools.GenLeptonFilter_cfi')
 
 if isTTbarMC:
     process.makingNTuples = cms.Path(
@@ -138,9 +139,10 @@ if isTTbarMC:
         process.qcdMuonSelectionAnalyzerSequence *
         process.qcdElectronSelectionAnalyzerSequence *
         process.ttGenEvent *
+        process.makePseudoTop *
+        process.genLeptonFilter *
         process.selectionCriteriaAnalyzer *
         process.addNJettiness *
-        process.makePseudoTop *
         process.indexSequence *
         process.eventUserDataSequence *
         process.printEventContent *
@@ -233,7 +235,7 @@ if isData:
 if not isTTbarMC:
     print('Not a ttbar MC - removing TTbar specific modules')
     process.selectionCriteriaAnalyzer.genSelectionCriteriaInput = cms.VInputTag()
-    process.selectionCriteriaAnalyzer.particleLevelLeptonSelectionInput = cms.VInputTag()
+    process.selectionCriteriaAnalyzer.particleLevelLeptonSelectionInput = cms.InputTag()
 
 # 76X datasets are all ReReco so far
 process.nTupleEvent.metFiltersInputTag = cms.InputTag('TriggerResults', '', 'PAT')

@@ -8,17 +8,14 @@
 using namespace edm;
 using namespace std;
 
-SelectionCriteriaAnalyzer::SelectionCriteriaAnalyzer(const edm::ParameterSet& iConfig) {
-
+SelectionCriteriaAnalyzer::SelectionCriteriaAnalyzer(const edm::ParameterSet& iConfig) :
+    particleLevelLeptonSelectionInput_( consumes< bool >(iConfig.getParameter<edm::InputTag>("particleLevelLeptonSelectionInput"))){
     for (edm::InputTag const & tag : iConfig.getParameter< std::vector<edm::InputTag> > ("offlineSelectionCriteriaInput"))
     offlineSelectionCriteriaInput_.push_back(consumes<bool>(tag));
     for (edm::InputTag const & tag : iConfig.getParameter< std::vector<edm::InputTag> > ("genSelectionCriteriaInput"))
     genSelectionCriteriaInput_.push_back(consumes<bool>(tag));
-    for (edm::InputTag const & tag : iConfig.getParameter< std::vector<edm::InputTag> > ("particleLevelLeptonSelectionInput"))
-    particleLevelLeptonSelectionInput_.push_back(consumes<bool>(tag));
 
 	produces< vector<unsigned int> >("passesOfflineSelection");
-	produces< vector<unsigned int> >("passesGenSelectionNoLepton");	
 	produces< vector<unsigned int> >("passesGenSelection");	
 	}
 
@@ -32,8 +29,10 @@ SelectionCriteriaAnalyzer::~SelectionCriteriaAnalyzer() {
 bool SelectionCriteriaAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 	std::auto_ptr< vector<unsigned int> > passesOfflineSelection(new vector<unsigned int>());
-	std::auto_ptr< vector<unsigned int> > passesGenSelectionNoLepton(new vector<unsigned int>());
 	std::auto_ptr< vector<unsigned int> > passesGenSelection(new vector<unsigned int>());
+
+	edm::Handle < bool > particleLevelLeptonSelection;
+	iEvent.getByToken(particleLevelLeptonSelectionInput_, particleLevelLeptonSelection);
 
 	bool passesAtLeastOneSelection = false;
 
@@ -47,20 +46,15 @@ bool SelectionCriteriaAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup
 
 	for (unsigned short selectionIndex = 0; selectionIndex < genSelectionCriteriaInput_.size(); ++selectionIndex) {
 		bool passesSelection = passesFilter(iEvent, genSelectionCriteriaInput_.at(selectionIndex ));
-		bool passesLeptonSelection = passesFilter(iEvent, particleLevelLeptonSelectionInput_.at(selectionIndex ));
+
+		passesAtLeastOneSelection = passesAtLeastOneSelection || (passesSelection && *particleLevelLeptonSelection);
 		
-		passesAtLeastOneSelection = passesAtLeastOneSelection || passesSelection;
-		
-		if ( passesSelection ) {
-			passesGenSelectionNoLepton->push_back(selectionIndex+1);
-			if ( passesLeptonSelection ) {
-				passesGenSelection->push_back(selectionIndex+1);
-			}
+		if ( passesSelection && *particleLevelLeptonSelection) {
+			passesGenSelection->push_back(selectionIndex+1);
 		}	
 	}
 
 	iEvent.put(passesOfflineSelection, "passesOfflineSelection");
-	iEvent.put(passesGenSelectionNoLepton, "passesGenSelectionNoLepton");
 	iEvent.put(passesGenSelection, "passesGenSelection");
 	return passesAtLeastOneSelection;
 }
