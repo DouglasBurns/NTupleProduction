@@ -32,4 +32,10 @@ selectionCriteriaAnalyzer = cms.EDFilter(
         cms.InputTag('ttSemiLeptonicMuonFilter',     '', 'Ntuples'),
         cms.InputTag('ttSemiLeptonicElectronFilter', '', 'Ntuples'),
     ),
+    particleLevelLeptonSelectionInput=cms.VInputTag(
+        cms.InputTag('topPairMuPlusJetsSelectionTagging',
+                     'TopPairMuonPlusJetsSelection.ExactlyOneSignalMuon', 'Ntuples'),
+        cms.InputTag('topPairEPlusJetsSelectionTagging',
+                     'TopPairElectronPlusJetsSelection.ExactlyOneSignalElectron', 'Ntuples'),
+    ),
 )

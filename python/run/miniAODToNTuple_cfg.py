@@ -233,6 +233,7 @@ if isData:
 if not isTTbarMC:
     print('Not a ttbar MC - removing TTbar specific modules')
     process.selectionCriteriaAnalyzer.genSelectionCriteriaInput = cms.VInputTag()
+    process.selectionCriteriaAnalyzer.particleLevelLeptonSelectionInput = cms.VInputTag()
 
 # 76X datasets are all ReReco so far
 process.nTupleEvent.metFiltersInputTag = cms.InputTag('TriggerResults', '', 'PAT')
