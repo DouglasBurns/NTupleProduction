@@ -33,8 +33,7 @@ bool SelectionCriteriaAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup
 
 	edm::Handle < bool > particleLevelLeptonSelection;
 	iEvent.getByToken(particleLevelLeptonSelectionInput_, particleLevelLeptonSelection);
-
-	bool passesAtLeastOneSelection = false;
+	bool passesAtLeastOneSelection = *particleLevelLeptonSelection;
 
 	for (unsigned short selectionIndex = 0; selectionIndex < offlineSelectionCriteriaInput_.size(); ++selectionIndex) {
 		bool passesSelection = passesFilter(iEvent, offlineSelectionCriteriaInput_.at(selectionIndex ));
@@ -46,10 +45,8 @@ bool SelectionCriteriaAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup
 
 	for (unsigned short selectionIndex = 0; selectionIndex < genSelectionCriteriaInput_.size(); ++selectionIndex) {
 		bool passesSelection = passesFilter(iEvent, genSelectionCriteriaInput_.at(selectionIndex ));
-
-		passesAtLeastOneSelection = passesAtLeastOneSelection || (passesSelection && *particleLevelLeptonSelection);
-		
-		if ( passesSelection && *particleLevelLeptonSelection) {
+		passesAtLeastOneSelection = passesAtLeastOneSelection || passesSelection ;
+		if ( passesAtLeastOneSelection ) {
 			passesGenSelection->push_back(selectionIndex+1);
 		}	
 	}
