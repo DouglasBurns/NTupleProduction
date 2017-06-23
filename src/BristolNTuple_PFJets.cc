@@ -13,6 +13,8 @@ BristolNTuple_PFJets::BristolNTuple_PFJets(const edm::ParameterSet& iConfig) :
   		njettiness2InputTag(consumes< edm::ValueMap< float > >(iConfig.getParameter<edm::InputTag>("NJettiness2Tag"))),			
   		njettiness3InputTag(consumes< edm::ValueMap< float > >(iConfig.getParameter<edm::InputTag>("NJettiness3Tag"))),			
   		njettiness4InputTag(consumes< edm::ValueMap< float > >(iConfig.getParameter<edm::InputTag>("NJettiness4Tag"))),			
+  		njettiness5InputTag(consumes< edm::ValueMap< float > >(iConfig.getParameter<edm::InputTag>("NJettiness5Tag"))),			
+  		njettiness6InputTag(consumes< edm::ValueMap< float > >(iConfig.getParameter<edm::InputTag>("NJettiness6Tag"))),			
 		prefix(iConfig.getParameter < std::string > ("Prefix")), //
 		suffix(iConfig.getParameter < std::string > ("Suffix")), //
 		maxSize(iConfig.getParameter<unsigned int>("MaxSize")), //
@@ -109,6 +111,8 @@ BristolNTuple_PFJets::BristolNTuple_PFJets(const edm::ParameterSet& iConfig) :
 	produces < float > (prefix + "tau2" + suffix);
 	produces < float > (prefix + "tau3" + suffix);
 	produces < float > (prefix + "tau4" + suffix);
+	produces < float > (prefix + "tau5" + suffix);
+	produces < float > (prefix + "tau6" + suffix);
 
 	//jet-vertex association
 	if (doVertexAssociation) {
@@ -213,6 +217,8 @@ void BristolNTuple_PFJets::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	std::auto_ptr < float > tau2(new float() );
 	std::auto_ptr < float > tau3(new float() );
 	std::auto_ptr < float > tau4(new float() );
+	std::auto_ptr < float > tau5(new float() );
+	std::auto_ptr < float > tau6(new float() );
 
 	//jet-vertex association
 	std::auto_ptr < std::vector<double> > bestVertexTrackAssociationFactor(new std::vector<double>());
@@ -238,18 +244,27 @@ void BristolNTuple_PFJets::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	iEvent.getByToken(njettiness3InputTag, njettiness3);
 	edm::Handle < edm::ValueMap< float > > njettiness4;
 	iEvent.getByToken(njettiness4InputTag, njettiness4);
+	edm::Handle < edm::ValueMap< float > > njettiness5;
+	iEvent.getByToken(njettiness5InputTag, njettiness5);
+	edm::Handle < edm::ValueMap< float > > njettiness6;
+	iEvent.getByToken(njettiness6InputTag, njettiness6);
 		   
 	*tau1.get() = 0;
 	*tau2.get() = 0;
 	*tau3.get() = 0;
 	*tau4.get() = 0;
+	*tau5.get() = 0;
+	*tau6.get() = 0;
 
     for( unsigned int i = 0 ; i < eventjets->size() ; i++ ) {
 		*tau1.get() = (*njettiness1)[ eventjets->refAt( i ) ];
 		*tau2.get() = (*njettiness2)[ eventjets->refAt( i ) ];
 		*tau3.get() = (*njettiness3)[ eventjets->refAt( i ) ];
 		*tau4.get() = (*njettiness4)[ eventjets->refAt( i ) ];
-		// std::cout << "njettiness1 : " << nj1 << " njettiness2 : " << nj2 << " njettiness3 : " << nj3 << " njettiness4 : " << nj4 << std::endl;
+		*tau5.get() = (*njettiness5)[ eventjets->refAt( i ) ];
+		*tau6.get() = (*njettiness6)[ eventjets->refAt( i ) ];
+
+		// std::cout << "njettiness1 : " << *tau1 << " njettiness2 : " << *tau2 << " njettiness3 : " << *tau3 << " njettiness4 : " << *tau4 << std::endl;
        }
 
 	if (jets.isValid()) {
@@ -527,6 +542,8 @@ void BristolNTuple_PFJets::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	iEvent.put(tau2, prefix + "tau2" + suffix);
 	iEvent.put(tau3, prefix + "tau3" + suffix);
 	iEvent.put(tau4, prefix + "tau4" + suffix);
+	iEvent.put(tau5, prefix + "tau5" + suffix);
+	iEvent.put(tau6, prefix + "tau6" + suffix);
 
 	//jet-vertex association
 	if (doVertexAssociation) {
