@@ -9,7 +9,8 @@ using namespace edm;
 using namespace std;
 
 SelectionCriteriaAnalyzer::SelectionCriteriaAnalyzer(const edm::ParameterSet& iConfig) :
-    particleLevelLeptonSelectionInput_( consumes< bool >(iConfig.getParameter<edm::InputTag>("particleLevelLeptonSelectionInput"))){
+    particleLevelLeptonSelectionInput_( consumes< bool >(iConfig.getParameter<edm::InputTag>("particleLevelLeptonSelectionInput"))),
+    isTTBarMC_( iConfig.getParameter<bool>("isTTbarMC")){
     for (edm::InputTag const & tag : iConfig.getParameter< std::vector<edm::InputTag> > ("offlineSelectionCriteriaInput"))
     offlineSelectionCriteriaInput_.push_back(consumes<bool>(tag));
     for (edm::InputTag const & tag : iConfig.getParameter< std::vector<edm::InputTag> > ("genSelectionCriteriaInput"))
@@ -31,9 +32,13 @@ bool SelectionCriteriaAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup
 	std::auto_ptr< vector<unsigned int> > passesOfflineSelection(new vector<unsigned int>());
 	std::auto_ptr< vector<unsigned int> > passesGenSelection(new vector<unsigned int>());
 
-	edm::Handle < bool > particleLevelLeptonSelection;
-	iEvent.getByToken(particleLevelLeptonSelectionInput_, particleLevelLeptonSelection);
-	bool passesAtLeastOneSelection = *particleLevelLeptonSelection;
+	bool passesAtLeastOneSelection = true;
+
+	if (isTTBarMC_){
+		edm::Handle < bool > particleLevelLeptonSelection;
+		iEvent.getByToken(particleLevelLeptonSelectionInput_, particleLevelLeptonSelection);
+		passesAtLeastOneSelection = *particleLevelLeptonSelection;
+	}
 
 	for (unsigned short selectionIndex = 0; selectionIndex < offlineSelectionCriteriaInput_.size(); ++selectionIndex) {
 		bool passesSelection = passesFilter(iEvent, offlineSelectionCriteriaInput_.at(selectionIndex ));

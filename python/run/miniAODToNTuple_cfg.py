@@ -75,14 +75,14 @@ else:
     print("Running on 2016 Data")
 print("Using Global Tag:", globaltag)
 
-# TT Gen Event configuration
 if isTTbarMC:
+    # TT Gen Event configuration
     from BristolAnalysis.NTupleTools.ttGenConfig_cff import setupTTGenEvent
     setupTTGenEvent(process, cms)
 
-# Particle level definitions
-from BristolAnalysis.NTupleTools.pseudoTopConfig_cff import setupPseudoTop
-setupPseudoTop(process, cms)
+    # Particle level definitions
+    from BristolAnalysis.NTupleTools.pseudoTopConfig_cff import setupPseudoTop
+    setupPseudoTop(process, cms)
 
 # Overwrite JEC/JER if useJECFromFile is true
 # if options.useJECFromFile:
@@ -217,7 +217,6 @@ if isData:
     del process.nTupleTrigger
 
     # Remove PseudoTop and MC Gen Variables
-    process.makingNTuples.remove(process.makePseudoTop)
     process.nTuples.remove(process.pseudoTopSequence)
     process.nTuples.remove(process.nTupleGenMET)
     process.nTuples.remove(process.nTupleGenJets)
@@ -228,14 +227,16 @@ if isData:
     process.nTupleTree.outputCommands.append('drop *_nTuplePFJets_*Gen*_*')
 
     # Delete removed modules and sequences (So they do not run on unscheduled)
-    del process.makePseudoTop, process.pseudoTopSequence, process.pseudoTop
+    del process.pseudoTopSequence
     del process.nTuplePseudoTopJets, process.nTuplePseudoTopLeptons, process.nTuplePseudoTopNeutrinos, process.nTuplePseudoTops
     del process.nTupleGenMET, process.nTupleGenJets,  process.nTupleGenEventInfo, process.nTupleGenParticles
 
 if not isTTbarMC:
     print('Not a ttbar MC - removing TTbar specific modules')
     process.selectionCriteriaAnalyzer.genSelectionCriteriaInput = cms.VInputTag()
-    process.selectionCriteriaAnalyzer.particleLevelLeptonSelectionInput = cms.InputTag()
+    process.selectionCriteriaAnalyzer.particleLevelLeptonSelectionInput = cms.InputTag('','','')
+else:
+    process.selectionCriteriaAnalyzer.isTTbarMC = cms.bool(True)
 
 # 76X datasets are all ReReco so far
 process.nTupleEvent.metFiltersInputTag = cms.InputTag('TriggerResults', '', 'PAT')
